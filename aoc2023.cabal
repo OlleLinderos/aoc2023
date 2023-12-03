@@ -19,4 +19,4 @@ executable aoc2023
 
   build-depends:
       base ^>=4.17.2.0
-      , text ^>=2.1
+      , split ^>=0.2.4
