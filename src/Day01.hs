@@ -2,16 +2,6 @@ module Day01 where
 
 import Data.Char (isDigit)
 
--- Part 1
-
-processLines :: [String] -> Int
-processLines x = result
- where
-  result = sum $ map (\y -> read [head y, last y]) digits
-  digits = map (filter isDigit) x
-
--- Part 2
-
 digitizeWords :: String -> String
 digitizeWords x
   | "one"   == take 3 x = '1' : tail x
@@ -31,8 +21,14 @@ digitize x y = digitize (x ++ f) l
  where
   (f, l) = splitAt 1 $ digitizeWords y
 
-processLines' :: [String] -> Int
-processLines' x = result
+partOne :: [String] -> Int
+partOne x = result
+ where
+  result = sum $ map (\y -> read [head y, last y]) digits
+  digits = map (filter isDigit) x
+
+partTwo :: [String] -> Int
+partTwo x = result
  where
   result = sum $ map (\y -> read [head y, last y]) digits
   digits = map (filter isDigit . digitize "") x
@@ -41,8 +37,8 @@ day01 :: IO ()
 day01 = do
   inputLines <- lines <$> readFile "data/day01.txt"
 
-  let p1 = processLines inputLines
-  let p2 = processLines' inputLines
-
+  let p1 = partOne inputLines
   putStrLn $ "Part 1: " ++ show p1
+
+  let p2 = partTwo inputLines
   putStrLn $ "Part 2: " ++ show p2
