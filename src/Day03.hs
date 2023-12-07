@@ -3,10 +3,10 @@ module Day03 where
 import Data.Char (isDigit)
 
 data Value = Value
-  { value' :: String
-  , index' :: Int
+  { value'  :: String
+  , index'  :: Int
   , length' :: Int
-  , line' :: Int
+  , line'   :: Int
   , number' :: Bool
   }
   deriving (Show)
@@ -25,18 +25,37 @@ isSymbol' :: Char -> Bool
 isSymbol' = (`elem` ['+', '-', '*', '/', '@', '$', '&', '%', '#', '='])
 
 filterAdjacentNumbers :: Value -> [Value] -> Bool
-filterAdjacentNumbers v vs = number' v && any (and . filters) vs
+filterAdjacentNumbers n vs = number' n && any (and . filters) vs
  where
   filters x =
     [ not $ number' x
-    , index' x `elem` [(index' v - 1) .. (index' v + length' v)]
-    , line' x `elem` [(line' v - 1) .. (line' v + 1)]
+    , index' x `elem` [(index' n - 1) .. (index' n + length' n)]
+    , line' x `elem` [(line' n - 1) .. (line' n + 1)]
+    ]
+
+extractGearAdjacentNumberPairs :: [Value] -> [Value] -> [[Int]]
+extractGearAdjacentNumberPairs gs ns = map (map (read . value')) pairs
+ where
+  pairs = filter (\x -> length x == 2) gearAdjacentNumbers
+  gearAdjacentNumbers = map (\g -> filter (and . filters g) ns) gs
+  filters g n =
+    [ number' n
+    , any (`elem` [(index' n) .. (index' n + length' n - 1)]) [(index' g - 1) .. (index' g + 1)]
+    , line' n `elem` [(line' g - 1) .. (line' g + 1)]
     ]
 
 partOne :: [String] -> Int
 partOne l = sum valueOfAdjacentNumbers
  where
   valueOfAdjacentNumbers = map (read . value') adjacentNumbers
+  adjacentNumbers = filter (`filterAdjacentNumbers` allValues) allValues
+  allValues = concatMap (uncurry (extractValues 1)) (zip [1 ..] l)
+
+partTwo :: [String] -> Int
+partTwo l = sum $ map product numberPairs
+ where
+  numberPairs = extractGearAdjacentNumberPairs gears adjacentNumbers
+  gears = filter (\v -> value' v == "*") allValues
   adjacentNumbers = filter (`filterAdjacentNumbers` allValues) allValues
   allValues = concatMap (uncurry (extractValues 1)) (zip [1 ..] l)
 
@@ -47,5 +66,5 @@ day03 = do
   let p1 = partOne inputLines
   putStrLn $ "Part 1: " ++ show p1
 
-  -- let p2 = partTwo inputLines
-  -- putStrLn $ "Part 2: " ++ show p2
+  let p2 = partTwo inputLines
+  putStrLn $ "Part 2: " ++ show p2
